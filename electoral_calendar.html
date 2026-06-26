@@ -63,12 +63,6 @@
   .type-presidential { background: #ea580c; }
   .type-other        { background: #64748b; }
 
-  /* Row tints for Country and Specification cells */
-  .tint-parliament   { background: #e8f0fc; }
-  .tint-referendum   { background: #ede8fb; }
-  .tint-regional     { background: #e6f4ea; }
-  .tint-presidential { background: #fdeee6; }
-  .tint-other        { background: #f1f3f4; }
   .muted { color: #999; }
   .credit { font-size: 11px; color: #aaa; padding: 8px 10px; }
   .credit a { color: #3a7bd5; text-decoration: none; }
@@ -250,8 +244,10 @@
         if (i === COL_COUNTRY) {
           // Merge flag from col A + country name from col B
           const flag = shortcodeToFlag(cols[COL_FLAG] || "");
-          td.textContent = (flag ? flag + " " : "") + val;
-          td.className = "tint-" + typeClass(cols[COL_TYPE] || "").replace("type-", "");
+          const badge = document.createElement("span");
+          badge.className = "badge " + typeClass(cols[COL_TYPE] || "");
+          badge.textContent = (flag ? flag + " " : "") + val;
+          td.appendChild(badge);
 
         } else if (i === COL_TYPE) {
           const badge = document.createElement("span");
@@ -260,8 +256,10 @@
           td.appendChild(badge);
 
         } else if (i === COL_SPEC) {
-          td.textContent = val;
-          td.className = "tint-" + typeClass(cols[COL_TYPE] || "").replace("type-", "");
+          const badge = document.createElement("span");
+          badge.className = "badge " + typeClass(cols[COL_TYPE] || "");
+          badge.textContent = val;
+          td.appendChild(badge);
 
         } else if (i === COL_DATE) {
           td.textContent = val;
