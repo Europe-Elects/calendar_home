@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -5,7 +6,6 @@
 <title>Electoral Calendar</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     font-size: 13px;
@@ -13,7 +13,6 @@
     color: #222;
     padding: 0;
   }
-
   .ec-header {
     background: #1a2236;
     color: #fff;
@@ -28,20 +27,9 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
-  .ec-header a {
-    color: #f0b429;
-    font-size: 12px;
-    text-decoration: none;
-  }
-
+  .ec-header a { color: #f0b429; font-size: 12px; text-decoration: none; }
   .table-wrap { overflow-x: auto; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
   thead th {
     background: #f7f7f5;
     color: #666;
@@ -52,17 +40,14 @@
     border-bottom: 1px solid #ddd;
     white-space: nowrap;
   }
-
   tbody td {
     padding: 9px 10px;
     border-bottom: 1px solid #ebebeb;
     vertical-align: middle;
     color: #222;
   }
-
   tbody tr:last-child td { border-bottom: none; }
   tbody tr:hover td { background: #fafafa; }
-
   .badge {
     display: inline-block;
     padding: 3px 8px;
@@ -72,19 +57,15 @@
     color: #fff;
     white-space: nowrap;
   }
-
   .type-parliament   { background: #3a7bd5; }
   .type-referendum   { background: #7c3aed; }
   .type-regional     { background: #16a34a; }
   .type-presidential { background: #ea580c; }
   .type-other        { background: #64748b; }
-
   .status-confirmed   { color: #222; }
   .status-unconfirmed { color: #999; }
-
   .credit { font-size: 11px; color: #aaa; padding: 8px 10px; }
   .credit a { color: #3a7bd5; text-decoration: none; }
-
   #loading { padding: 2rem; text-align: center; color: #888; font-size: 13px; }
   #error   { padding: 2rem; text-align: center; color: #c00; font-size: 13px; display: none; }
 </style>
@@ -93,10 +74,10 @@
 
 <div class="ec-header">
   <span>Electoral Calendar</span>
-  <a href="https://docs.google.com/spreadsheets/d/1Wdx_eDbVv2XaMlSoYnzauLch_47xWHjP181iVV8QIrM/" target="_blank">Full Calendar →</a>
+  <a href="https://docs.google.com/spreadsheets/d/1Wdx_eDbVv2XaMlSoYnzauLch_47xWHjP181iVV8QIrM/" target="_blank">Full Calendar &rarr;</a>
 </div>
 
-<div id="loading">Loading…</div>
+<div id="loading">Loading&hellip;</div>
 <div id="error">Could not load data. Make sure the Google Sheet is published to the web as CSV.</div>
 
 <div class="table-wrap" id="table-wrap" style="display:none;">
@@ -110,85 +91,78 @@
 <script>
   const SHEET_ID = "1Wdx_eDbVv2XaMlSoYnzauLch_47xWHjP181iVV8QIrM";
   const GID      = "1530371858";
-  const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${GID}`;
+  const CSV_URL  = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=" + GID;
 
-  // ── COLUMN HEADER KEYWORDS ──────────────────────────────────────────────────
-  // These are matched against your actual sheet headers (case-insensitive).
-  // Edit if your column names differ.
-  const COUNTRY_KEYWORDS = ["country"];
+  // Column A has no header (A1 is empty), data starts at A2
+  // Other columns are detected by header name
+  const FLAG_COL         = 0;   // Column A — always the flag shortcode
   const TYPE_KEYWORDS    = ["type"];
   const STATUS_KEYWORDS  = ["status", "date status"];
 
-  // ── FLAGS ───────────────────────────────────────────────────────────────────
-  // Maps lowercase country name (or common abbreviation) → flag emoji
-  const FLAGS = {
-    "albania": "🇦🇱",
-    "andorra": "🇦🇩",
-    "armenia": "🇦🇲",
-    "austria": "🇦🇹",
-    "azerbaijan": "🇦🇿",
-    "belarus": "🇧🇾",
-    "belgium": "🇧🇪",
-    "bosnia": "🇧🇦",
-    "bosnia and herzegovina": "🇧🇦",
-    "bulgaria": "🇧🇬",
-    "croatia": "🇭🇷",
-    "cyprus": "🇨🇾",
-    "czech republic": "🇨🇿",
-    "czechia": "🇨🇿",
-    "denmark": "🇩🇰",
-    "estonia": "🇪🇪",
-    "finland": "🇫🇮",
-    "france": "🇫🇷",
-    "georgia": "🇬🇪",
-    "germany": "🇩🇪",
-    "greece": "🇬🇷",
-    "hungary": "🇭🇺",
-    "iceland": "🇮🇸",
-    "ireland": "🇮🇪",
-    "italy": "🇮🇹",
-    "kosovo": "🇽🇰",
-    "latvia": "🇱🇻",
-    "liechtenstein": "🇱🇮",
-    "lithuania": "🇱🇹",
-    "luxembourg": "🇱🇺",
-    "malta": "🇲🇹",
-    "moldova": "🇲🇩",
-    "monaco": "🇲🇨",
-    "montenegro": "🇲🇪",
-    "netherlands": "🇳🇱",
-    "north macedonia": "🇲🇰",
-    "norway": "🇳🇴",
-    "poland": "🇵🇱",
-    "portugal": "🇵🇹",
-    "romania": "🇷🇴",
-    "russia": "🇷🇺",
-    "san marino": "🇸🇲",
-    "serbia": "🇷🇸",
-    "slovakia": "🇸🇰",
-    "slovenia": "🇸🇮",
-    "spain": "🇪🇸",
-    "sweden": "🇸🇪",
-    "switzerland": "🇨🇭",
-    "turkey": "🇹🇷",
-    "ukraine": "🇺🇦",
-    "united kingdom": "🇬🇧",
-    "uk": "🇬🇧",
-    "england": "🏴󠁧󠁢󠁥󠁮󠁧󠁿",
-    "scotland": "🏴󠁧󠁢󠁳󠁣󠁴󠁿",
-    "wales": "🏴󠁧󠁢󠁷󠁬󠁳󠁿",
+  // ── SHORTCODE → FLAG EMOJI ──────────────────────────────────────────────────
+  // Covers all European countries plus common extras
+  const SHORTCODE_FLAGS = {
+    "al": "\uD83C\uDDE6\uD83C\uDDF1", // Albania
+    "ad": "\uD83C\uDDE6\uD83C\uDDE9", // Andorra
+    "am": "\uD83C\uDDE6\uD83C\uDDF2", // Armenia
+    "at": "\uD83C\uDDE6\uD83C\uDDF9", // Austria
+    "az": "\uD83C\uDDE6\uD83C\uDDFF", // Azerbaijan
+    "by": "\uD83C\uDDE7\uD83C\uDDFE", // Belarus
+    "be": "\uD83C\uDDE7\uD83C\uDDEA", // Belgium
+    "ba": "\uD83C\uDDE7\uD83C\uDDE6", // Bosnia
+    "bg": "\uD83C\uDDE7\uD83C\uDDEC", // Bulgaria
+    "hr": "\uD83C\uDDED\uD83C\uDDF7", // Croatia
+    "cy": "\uD83C\uDDE8\uD83C\uDDFE", // Cyprus
+    "cz": "\uD83C\uDDE8\uD83C\uDDFF", // Czech Republic
+    "dk": "\uD83C\uDDE9\uD83C\uDDF0", // Denmark
+    "ee": "\uD83C\uDDEA\uD83C\uDDEA", // Estonia
+    "fi": "\uD83C\uDDEB\uD83C\uDDEE", // Finland
+    "fr": "\uD83C\uDDEB\uD83C\uDDF7", // France
+    "ge": "\uD83C\uDDEC\uD83C\uDDEA", // Georgia
+    "de": "\uD83C\uDDE9\uD83C\uDDEA", // Germany
+    "gr": "\uD83C\uDDEC\uD83C\uDDF7", // Greece
+    "hu": "\uD83C\uDDED\uD83C\uDDFA", // Hungary
+    "is": "\uD83C\uDDEE\uD83C\uDDF8", // Iceland
+    "ie": "\uD83C\uDDEE\uD83C\uDDEA", // Ireland
+    "it": "\uD83C\uDDEE\uD83C\uDDF9", // Italy
+    "xk": "\uD83C\uDDFD\uD83C\uDDF0", // Kosovo
+    "lv": "\uD83C\uDDF1\uD83C\uDDFB", // Latvia
+    "li": "\uD83C\uDDF1\uD83C\uDDEE", // Liechtenstein
+    "lt": "\uD83C\uDDF1\uD83C\uDDF9", // Lithuania
+    "lu": "\uD83C\uDDF1\uD83C\uDDFA", // Luxembourg
+    "mt": "\uD83C\uDDF2\uD83C\uDDF9", // Malta
+    "md": "\uD83C\uDDF2\uD83C\uDDE9", // Moldova
+    "mc": "\uD83C\uDDF2\uD83C\uDDE8", // Monaco
+    "me": "\uD83C\uDDF2\uD83C\uDDEA", // Montenegro
+    "nl": "\uD83C\uDDF3\uD83C\uDDF1", // Netherlands
+    "mk": "\uD83C\uDDF2\uD83C\uDDF0", // North Macedonia
+    "no": "\uD83C\uDDF3\uD83C\uDDF4", // Norway
+    "pl": "\uD83C\uDDF5\uD83C\uDDF1", // Poland
+    "pt": "\uD83C\uDDF5\uD83C\uDDF9", // Portugal
+    "ro": "\uD83C\uDDF7\uD83C\uDDF4", // Romania
+    "ru": "\uD83C\uDDF7\uD83C\uDDFA", // Russia
+    "sm": "\uD83C\uDDF8\uD83C\uDDF2", // San Marino
+    "rs": "\uD83C\uDDF7\uD83C\uDDF8", // Serbia
+    "sk": "\uD83C\uDDF8\uD83C\uDDF0", // Slovakia
+    "si": "\uD83C\uDDF8\uD83C\uDDEE", // Slovenia
+    "es": "\uD83C\uDDEA\uD83C\uDDF8", // Spain
+    "se": "\uD83C\uDDF8\uD83C\uDDEA", // Sweden
+    "ch": "\uD83C\uDDE8\uD83C\uDDED", // Switzerland
+    "tr": "\uD83C\uDDF9\uD83C\uDDF7", // Turkey
+    "ua": "\uD83C\uDDFA\uD83C\uDDE6", // Ukraine
+    "gb": "\uD83C\uDDEC\uD83C\uDDE7", // United Kingdom
+    "us": "\uD83C\uDDFA\uD83C\uDDF8", // United States
+    "eu": "\uD83C\uDDEA\uD83C\uDDFA", // European Union
   };
 
-  function getFlag(country) {
-    if (!country) return "";
-    const key = country.toLowerCase().trim();
-    // Exact match first
-    if (FLAGS[key]) return FLAGS[key];
-    // Partial match — e.g. "United Kingdom (England)" → still finds UK
-    for (const [k, v] of Object.entries(FLAGS)) {
-      if (key.includes(k) || k.includes(key)) return v;
-    }
-    return "";
+  function shortcodeToFlag(val) {
+    if (!val) return { flag: "", rest: val || "" };
+    const match = val.trim().match(/^:([a-z_]+):\s*(.*)/s);
+    if (!match) return { flag: "", rest: val.trim() };
+    const code = match[1];
+    const rest = match[2].trim();
+    const flag = SHORTCODE_FLAGS[code] || "";
+    return { flag, rest };
   }
 
   // ── TYPE → BADGE CLASS ──────────────────────────────────────────────────────
@@ -227,16 +201,13 @@
         } else { field += c; }
       }
     }
-    if (field !== "" || row.length) {
-      row.push(field.trim());
-      if (row.some(f => f !== "")) rows.push(row);
-    }
+    if (field !== "" || row.length) { row.push(field.trim()); if (row.some(f => f !== "")) rows.push(row); }
     return rows;
   }
 
   // ── FIND COLUMN BY HEADER KEYWORD ──────────────────────────────────────────
   function findCol(headers, keywords) {
-    const norm = headers.map(h => h.toLowerCase().trim());
+    const norm = headers.map(h => (h || "").toLowerCase().trim());
     for (const kw of keywords) {
       const idx = norm.findIndex(h => h.includes(kw));
       if (idx >= 0) return idx;
@@ -252,18 +223,19 @@
       return;
     }
 
-    const headers   = rows[0];
-    const data      = rows.slice(1);
-    const countryCol = findCol(headers, COUNTRY_KEYWORDS);
-    const typeCol    = findCol(headers, TYPE_KEYWORDS);
-    const statusCol  = findCol(headers, STATUS_KEYWORDS);
+    // Row 0 is the header row (A1 is blank, others have names)
+    const headers = rows[0];
+    const data    = rows.slice(1);
 
-    // Header row
+    const typeCol   = findCol(headers, TYPE_KEYWORDS);
+    const statusCol = findCol(headers, STATUS_KEYWORDS);
+
+    // Build header row — skip blank A1 header, replace with "Flag / Country"
     const thead = document.getElementById("ec-head");
     const htr = document.createElement("tr");
-    headers.forEach(h => {
+    headers.forEach((h, i) => {
       const th = document.createElement("th");
-      th.textContent = h;
+      th.textContent = (i === FLAG_COL && !h) ? "Country" : h;
       htr.appendChild(th);
     });
     thead.appendChild(htr);
@@ -275,11 +247,11 @@
       cols.forEach((val, i) => {
         const td = document.createElement("td");
 
-        if (i === countryCol) {
-          const f = getFlag(val);
-          td.textContent = (f ? f + " " : "") + val;
+        if (i === FLAG_COL) {
+          const { flag, rest } = shortcodeToFlag(val);
+          td.textContent = flag ? flag + (rest ? " " + rest : "") : val;
 
-        } else if (i === typeCol) {
+        } else if (i === typeCol && typeCol >= 0) {
           const badge = document.createElement("span");
           badge.className = "badge " + typeClass(val);
           badge.textContent = val;
