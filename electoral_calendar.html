@@ -62,6 +62,13 @@
   .type-regional     { background: #16a34a; }
   .type-presidential { background: #ea580c; }
   .type-other        { background: #64748b; }
+
+  /* Row tints for Country and Specification cells */
+  .tint-parliament   { background: #e8f0fc; }
+  .tint-referendum   { background: #ede8fb; }
+  .tint-regional     { background: #e6f4ea; }
+  .tint-presidential { background: #fdeee6; }
+  .tint-other        { background: #f1f3f4; }
   .muted { color: #999; }
   .credit { font-size: 11px; color: #aaa; padding: 8px 10px; }
   .credit a { color: #3a7bd5; text-decoration: none; }
@@ -79,6 +86,14 @@
 <div id="loading">Loading&hellip;</div>
 <div id="error">Could not load data. Make sure the Google Sheet is published to the web as CSV.</div>
 
+<div class="table-wrap" id="table-wrap" style="display:none;">
+  <table id="ec-table">
+    <thead id="ec-head"></thead>
+    <tbody id="ec-body"></tbody>
+  </table>
+  <p class="credit">Data from <a href="https://docs.google.com/spreadsheets/d/1Wdx_eDbVv2XaMlSoYnzauLch_47xWHjP181iVV8QIrM/" target="_blank">Google Sheets</a></p>
+</div>
+
 <script>
   const SHEET_ID = "1Wdx_eDbVv2XaMlSoYnzauLch_47xWHjP181iVV8QIrM";
   const GID      = "1530371858";
@@ -89,6 +104,7 @@
   // A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7
   const COL_FLAG    = 0;  // A — shortcode e.g. :gb:
   const COL_COUNTRY = 1;  // B — country name
+  const COL_SPEC    = 2;  // C — Specification
   const COL_TYPE    = 3;  // D — election type
   const COL_DATE    = 6;  // G — (Expected) Date
   const COL_STATUS  = 7;  // H — Date Status
@@ -235,12 +251,17 @@
           // Merge flag from col A + country name from col B
           const flag = shortcodeToFlag(cols[COL_FLAG] || "");
           td.textContent = (flag ? flag + " " : "") + val;
+          td.className = "tint-" + typeClass(cols[COL_TYPE] || "").replace("type-", "");
 
         } else if (i === COL_TYPE) {
           const badge = document.createElement("span");
           badge.className = "badge " + typeClass(val);
           badge.textContent = val;
           td.appendChild(badge);
+
+        } else if (i === COL_SPEC) {
+          td.textContent = val;
+          td.className = "tint-" + typeClass(cols[COL_TYPE] || "").replace("type-", "");
 
         } else if (i === COL_DATE) {
           td.textContent = val;
