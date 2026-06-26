@@ -90,7 +90,8 @@
 <script>
   const SHEET_ID = "1Wdx_eDbVv2XaMlSoYnzauLch_47xWHjP181iVV8QIrM";
   const GID      = "1530371858";
-  const CSV_URL  = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSSf9yMeW9d5iFhTsKq-OFbBC4rMTPc7em-9Yg1symor1RdPMSkCfLrAOZ11zBfBI3Gg-g7QuxWwkgd/pub?gid=1530371858&single=true&output=csv";
+  const SHEET_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSSf9yMeW9d5iFhTsKq-OFbBC4rMTPc7em-9Yg1symor1RdPMSkCfLrAOZ11zBfBI3Gg-g7QuxWwkgd/pub?gid=1530371858&single=true&output=csv";
+  const CSV_URL  = "https://corsproxy.io/?" + encodeURIComponent(SHEET_CSV);
 
   // ── COLUMN INDEXES (0-based) ─────────────────────────────────────────────
   // A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7
