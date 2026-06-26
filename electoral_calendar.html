@@ -62,8 +62,7 @@
   .type-regional     { background: #16a34a; }
   .type-presidential { background: #ea580c; }
   .type-other        { background: #64748b; }
-  .status-confirmed   { color: #222; }
-  .status-unconfirmed { color: #999; }
+  .muted { color: #999; }
   .credit { font-size: 11px; color: #aaa; padding: 8px 10px; }
   .credit a { color: #3a7bd5; text-decoration: none; }
   #loading { padding: 2rem; text-align: center; color: #888; font-size: 13px; }
@@ -93,79 +92,77 @@
   const GID      = "1530371858";
   const CSV_URL  = "https://docs.google.com/spreadsheets/d/" + SHEET_ID + "/export?format=csv&gid=" + GID;
 
-  // Column A has no header (A1 is empty), data starts at A2
-  // Other columns are detected by header name
-  const FLAG_COL         = 0;   // Column A — always the flag shortcode
-  const TYPE_KEYWORDS    = ["type"];
-  const STATUS_KEYWORDS  = ["status", "date status"];
+  // ── COLUMN INDEXES (0-based) ─────────────────────────────────────────────
+  // A=0, B=1, C=2, D=3, E=4, F=5, G=6, H=7
+  const COL_FLAG    = 0;  // A — shortcode e.g. :gb:
+  const COL_COUNTRY = 1;  // B — country name
+  const COL_TYPE    = 3;  // D — election type
+  const COL_DATE    = 6;  // G — (Expected) Date
+  const COL_STATUS  = 7;  // H — Date Status
 
-  // ── SHORTCODE → FLAG EMOJI ──────────────────────────────────────────────────
-  // Covers all European countries plus common extras
-  const SHORTCODE_FLAGS = {
-    "al": "\uD83C\uDDE6\uD83C\uDDF1", // Albania
-    "ad": "\uD83C\uDDE6\uD83C\uDDE9", // Andorra
-    "am": "\uD83C\uDDE6\uD83C\uDDF2", // Armenia
-    "at": "\uD83C\uDDE6\uD83C\uDDF9", // Austria
-    "az": "\uD83C\uDDE6\uD83C\uDDFF", // Azerbaijan
-    "by": "\uD83C\uDDE7\uD83C\uDDFE", // Belarus
-    "be": "\uD83C\uDDE7\uD83C\uDDEA", // Belgium
-    "ba": "\uD83C\uDDE7\uD83C\uDDE6", // Bosnia
-    "bg": "\uD83C\uDDE7\uD83C\uDDEC", // Bulgaria
-    "hr": "\uD83C\uDDED\uD83C\uDDF7", // Croatia
-    "cy": "\uD83C\uDDE8\uD83C\uDDFE", // Cyprus
-    "cz": "\uD83C\uDDE8\uD83C\uDDFF", // Czech Republic
-    "dk": "\uD83C\uDDE9\uD83C\uDDF0", // Denmark
-    "ee": "\uD83C\uDDEA\uD83C\uDDEA", // Estonia
-    "fi": "\uD83C\uDDEB\uD83C\uDDEE", // Finland
-    "fr": "\uD83C\uDDEB\uD83C\uDDF7", // France
-    "ge": "\uD83C\uDDEC\uD83C\uDDEA", // Georgia
-    "de": "\uD83C\uDDE9\uD83C\uDDEA", // Germany
-    "gr": "\uD83C\uDDEC\uD83C\uDDF7", // Greece
-    "hu": "\uD83C\uDDED\uD83C\uDDFA", // Hungary
-    "is": "\uD83C\uDDEE\uD83C\uDDF8", // Iceland
-    "ie": "\uD83C\uDDEE\uD83C\uDDEA", // Ireland
-    "it": "\uD83C\uDDEE\uD83C\uDDF9", // Italy
-    "xk": "\uD83C\uDDFD\uD83C\uDDF0", // Kosovo
-    "lv": "\uD83C\uDDF1\uD83C\uDDFB", // Latvia
-    "li": "\uD83C\uDDF1\uD83C\uDDEE", // Liechtenstein
-    "lt": "\uD83C\uDDF1\uD83C\uDDF9", // Lithuania
-    "lu": "\uD83C\uDDF1\uD83C\uDDFA", // Luxembourg
-    "mt": "\uD83C\uDDF2\uD83C\uDDF9", // Malta
-    "md": "\uD83C\uDDF2\uD83C\uDDE9", // Moldova
-    "mc": "\uD83C\uDDF2\uD83C\uDDE8", // Monaco
-    "me": "\uD83C\uDDF2\uD83C\uDDEA", // Montenegro
-    "nl": "\uD83C\uDDF3\uD83C\uDDF1", // Netherlands
-    "mk": "\uD83C\uDDF2\uD83C\uDDF0", // North Macedonia
-    "no": "\uD83C\uDDF3\uD83C\uDDF4", // Norway
-    "pl": "\uD83C\uDDF5\uD83C\uDDF1", // Poland
-    "pt": "\uD83C\uDDF5\uD83C\uDDF9", // Portugal
-    "ro": "\uD83C\uDDF7\uD83C\uDDF4", // Romania
-    "ru": "\uD83C\uDDF7\uD83C\uDDFA", // Russia
-    "sm": "\uD83C\uDDF8\uD83C\uDDF2", // San Marino
-    "rs": "\uD83C\uDDF7\uD83C\uDDF8", // Serbia
-    "sk": "\uD83C\uDDF8\uD83C\uDDF0", // Slovakia
-    "si": "\uD83C\uDDF8\uD83C\uDDEE", // Slovenia
-    "es": "\uD83C\uDDEA\uD83C\uDDF8", // Spain
-    "se": "\uD83C\uDDF8\uD83C\uDDEA", // Sweden
-    "ch": "\uD83C\uDDE8\uD83C\uDDED", // Switzerland
-    "tr": "\uD83C\uDDF9\uD83C\uDDF7", // Turkey
-    "ua": "\uD83C\uDDFA\uD83C\uDDE6", // Ukraine
-    "gb": "\uD83C\uDDEC\uD83C\uDDE7", // United Kingdom
-    "us": "\uD83C\uDDFA\uD83C\uDDF8", // United States
-    "eu": "\uD83C\uDDEA\uD83C\uDDFA", // European Union
+  // ── SHORTCODE → FLAG EMOJI (Unicode escapes, no literals) ───────────────
+  const FLAGS = {
+    "al": "\uD83C\uDDE6\uD83C\uDDF1",
+    "ad": "\uD83C\uDDE6\uD83C\uDDE9",
+    "am": "\uD83C\uDDE6\uD83C\uDDF2",
+    "at": "\uD83C\uDDE6\uD83C\uDDF9",
+    "az": "\uD83C\uDDE6\uD83C\uDDFF",
+    "by": "\uD83C\uDDE7\uD83C\uDDFE",
+    "be": "\uD83C\uDDE7\uD83C\uDDEA",
+    "ba": "\uD83C\uDDE7\uD83C\uDDE6",
+    "bg": "\uD83C\uDDE7\uD83C\uDDEC",
+    "hr": "\uD83C\uDDED\uD83C\uDDF7",
+    "cy": "\uD83C\uDDE8\uD83C\uDDFE",
+    "cz": "\uD83C\uDDE8\uD83C\uDDFF",
+    "dk": "\uD83C\uDDE9\uD83C\uDDF0",
+    "ee": "\uD83C\uDDEA\uD83C\uDDEA",
+    "fi": "\uD83C\uDDEB\uD83C\uDDEE",
+    "fr": "\uD83C\uDDEB\uD83C\uDDF7",
+    "ge": "\uD83C\uDDEC\uD83C\uDDEA",
+    "de": "\uD83C\uDDE9\uD83C\uDDEA",
+    "gr": "\uD83C\uDDEC\uD83C\uDDF7",
+    "hu": "\uD83C\uDDED\uD83C\uDDFA",
+    "is": "\uD83C\uDDEE\uD83C\uDDF8",
+    "ie": "\uD83C\uDDEE\uD83C\uDDEA",
+    "it": "\uD83C\uDDEE\uD83C\uDDF9",
+    "xk": "\uD83C\uDDFD\uD83C\uDDF0",
+    "lv": "\uD83C\uDDF1\uD83C\uDDFB",
+    "li": "\uD83C\uDDF1\uD83C\uDDEE",
+    "lt": "\uD83C\uDDF1\uD83C\uDDF9",
+    "lu": "\uD83C\uDDF1\uD83C\uDDFA",
+    "mt": "\uD83C\uDDF2\uD83C\uDDF9",
+    "md": "\uD83C\uDDF2\uD83C\uDDE9",
+    "mc": "\uD83C\uDDF2\uD83C\uDDE8",
+    "me": "\uD83C\uDDF2\uD83C\uDDEA",
+    "nl": "\uD83C\uDDF3\uD83C\uDDF1",
+    "mk": "\uD83C\uDDF2\uD83C\uDDF0",
+    "no": "\uD83C\uDDF3\uD83C\uDDF4",
+    "pl": "\uD83C\uDDF5\uD83C\uDDF1",
+    "pt": "\uD83C\uDDF5\uD83C\uDDF9",
+    "ro": "\uD83C\uDDF7\uD83C\uDDF4",
+    "ru": "\uD83C\uDDF7\uD83C\uDDFA",
+    "sm": "\uD83C\uDDF8\uD83C\uDDF2",
+    "rs": "\uD83C\uDDF7\uD83C\uDDF8",
+    "sk": "\uD83C\uDDF8\uD83C\uDDF0",
+    "si": "\uD83C\uDDF8\uD83C\uDDEE",
+    "es": "\uD83C\uDDEA\uD83C\uDDF8",
+    "se": "\uD83C\uDDF8\uD83C\uDDEA",
+    "ch": "\uD83C\uDDE8\uD83C\uDDED",
+    "tr": "\uD83C\uDDF9\uD83C\uDDF7",
+    "ua": "\uD83C\uDDFA\uD83C\uDDE6",
+    "gb": "\uD83C\uDDEC\uD83C\uDDE7",
+    "eu": "\uD83C\uDDEA\uD83C\uDDFA",
+    "us": "\uD83C\uDDFA\uD83C\uDDF8"
   };
 
   function shortcodeToFlag(val) {
-    if (!val) return { flag: "", rest: val || "" };
-    const match = val.trim().match(/^:([a-z_]+):\s*(.*)/s);
-    if (!match) return { flag: "", rest: val.trim() };
-    const code = match[1];
-    const rest = match[2].trim();
-    const flag = SHORTCODE_FLAGS[code] || "";
-    return { flag, rest };
+    if (!val) return "";
+    const m = val.trim().match(/^:([a-z_]+):$/);
+    if (!m) return "";
+    return FLAGS[m[1]] || "";
   }
 
-  // ── TYPE → BADGE CLASS ──────────────────────────────────────────────────────
+  // ── TYPE → BADGE CLASS ───────────────────────────────────────────────────
   function typeClass(val) {
     const v = (val || "").toLowerCase();
     if (v.includes("parliament") || v.includes("lower house") || v.includes("upper house") || v.includes("by-election") || v.includes("legislative")) return "type-parliament";
@@ -175,12 +172,12 @@
     return "type-other";
   }
 
-  function statusClass(val) {
+  function isUnconfirmed(val) {
     const v = (val || "").toLowerCase();
-    return (v.includes("not") || v.includes("unconfirmed") || v.includes("tentative")) ? "status-unconfirmed" : "status-confirmed";
+    return v.includes("not") || v.includes("unconfirmed") || v.includes("tentative");
   }
 
-  // ── CSV PARSER ──────────────────────────────────────────────────────────────
+  // ── CSV PARSER ───────────────────────────────────────────────────────────
   function parseCSV(text) {
     const rows = [];
     let row = [], field = "", inQ = false;
@@ -205,17 +202,7 @@
     return rows;
   }
 
-  // ── FIND COLUMN BY HEADER KEYWORD ──────────────────────────────────────────
-  function findCol(headers, keywords) {
-    const norm = headers.map(h => (h || "").toLowerCase().trim());
-    for (const kw of keywords) {
-      const idx = norm.findIndex(h => h.includes(kw));
-      if (idx >= 0) return idx;
-    }
-    return -1;
-  }
-
-  // ── RENDER ──────────────────────────────────────────────────────────────────
+  // ── RENDER ───────────────────────────────────────────────────────────────
   function render(rows) {
     if (rows.length < 2) {
       document.getElementById("loading").style.display = "none";
@@ -223,19 +210,16 @@
       return;
     }
 
-    // Row 0 is the header row (A1 is blank, others have names)
     const headers = rows[0];
     const data    = rows.slice(1);
 
-    const typeCol   = findCol(headers, TYPE_KEYWORDS);
-    const statusCol = findCol(headers, STATUS_KEYWORDS);
-
-    // Build header row — skip blank A1 header, replace with "Flag / Country"
+    // Build header row — skip col A (flag), label col B as "Country"
     const thead = document.getElementById("ec-head");
     const htr = document.createElement("tr");
     headers.forEach((h, i) => {
+      if (i === COL_FLAG) return; // hide the raw shortcode column
       const th = document.createElement("th");
-      th.textContent = (i === FLAG_COL && !h) ? "Country" : h;
+      th.textContent = h;
       htr.appendChild(th);
     });
     thead.appendChild(htr);
@@ -244,24 +228,34 @@
     const tbody = document.getElementById("ec-body");
     data.forEach(cols => {
       const tr = document.createElement("tr");
+
+      // Determine if this row is "not confirmed"
+      const statusVal = cols[COL_STATUS] || "";
+      const unconfirmed = isUnconfirmed(statusVal);
+
       cols.forEach((val, i) => {
+        if (i === COL_FLAG) return; // skip — merged into country cell
+
         const td = document.createElement("td");
 
-        if (i === FLAG_COL) {
-          const { flag, rest } = shortcodeToFlag(val);
-          td.textContent = flag ? flag + (rest ? " " + rest : "") : val;
+        if (i === COL_COUNTRY) {
+          // Merge flag from col A + country name from col B
+          const flag = shortcodeToFlag(cols[COL_FLAG] || "");
+          td.textContent = (flag ? flag + " " : "") + val;
 
-        } else if (i === typeCol && typeCol >= 0) {
+        } else if (i === COL_TYPE) {
           const badge = document.createElement("span");
           badge.className = "badge " + typeClass(val);
           badge.textContent = val;
           td.appendChild(badge);
 
-        } else if (statusCol >= 0 && i === statusCol) {
-          const s = document.createElement("span");
-          s.className = statusClass(val);
-          s.textContent = val;
-          td.appendChild(s);
+        } else if (i === COL_DATE) {
+          td.textContent = val;
+          if (unconfirmed) td.classList.add("muted");
+
+        } else if (i === COL_STATUS) {
+          td.textContent = val;
+          if (unconfirmed) td.classList.add("muted");
 
         } else {
           td.textContent = val;
@@ -276,7 +270,7 @@
     document.getElementById("table-wrap").style.display = "block";
   }
 
-  // ── FETCH ───────────────────────────────────────────────────────────────────
+  // ── FETCH ────────────────────────────────────────────────────────────────
   fetch(CSV_URL)
     .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.text(); })
     .then(text => render(parseCSV(text)))
