@@ -1,0 +1,160 @@
+
+<style>
+  .ec-wrap { font-family: var(--font-sans); padding: 1rem 0; }
+  .ec-header { background: #1a2236; color: #fff; display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; border-radius: 6px 6px 0 0; }
+  .ec-header span { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+  .ec-header a { color: #f0b429; font-size: 13px; text-decoration: none; }
+  .ec-table { width: 100%; border-collapse: collapse; font-size: 13px; table-layout: fixed; }
+  .ec-table th { background: var(--surface-1); color: var(--text-secondary); font-size: 12px; font-weight: 500; padding: 10px 10px; text-align: left; border-bottom: 1px solid var(--border-strong); }
+  .ec-table td { padding: 10px 10px; border-bottom: 0.5px solid var(--border); vertical-align: middle; color: var(--text-primary); }
+  .ec-table tr:last-child td { border-bottom: none; }
+  .ec-table tr:hover td { background: var(--surface-1); }
+  .flag { width: 22px; height: 16px; display: inline-block; vertical-align: middle; margin-right: 6px; }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; color: #fff; white-space: nowrap; }
+  .b-blue { background: #3a7bd5; }
+  .b-purple { background: #7c3aed; }
+  .b-green { background: #16a34a; }
+  .b-orange { background: #ea580c; }
+  .status-confirmed { color: var(--text-primary); font-size: 12px; }
+  .status-unconfirmed { color: var(--text-muted); font-size: 12px; }
+  .col-country { width: 13%; }
+  .col-spec { width: 22%; }
+  .col-type { width: 22%; }
+  .col-mode { width: 8%; }
+  .col-seq { width: 13%; }
+  .col-date { width: 10%; }
+  .col-status { width: 12%; }
+  .credit { font-size: 11px; color: var(--text-muted); padding: 6px 0 0; }
+  .credit a { color: var(--text-accent); }
+</style>
+<div class="ec-wrap">
+  <h2 class="sr-only">Electoral calendar listing upcoming elections and referendums across Europe</h2>
+  <div class="ec-header">
+    <span>Electoral Calendar</span>
+    <a href="#">Full Calendar →</a>
+  </div>
+  <table class="ec-table">
+    <thead>
+      <tr>
+        <th class="col-country">Country</th>
+        <th class="col-spec">Specification</th>
+        <th class="col-type">Type</th>
+        <th class="col-mode">Mode</th>
+        <th class="col-seq">Sequence</th>
+        <th class="col-date">(Expected) Date</th>
+        <th class="col-status">Date Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>🇬🇧 United Kingdom</td>
+        <td>Makerfield</td>
+        <td><span class="badge b-blue">national parliament (lower house) by-election</span></td>
+        <td>direct</td>
+        <td>single vote</td>
+        <td>18 Jun</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇬🇧 United Kingdom</td>
+        <td>Aberdeen South</td>
+        <td><span class="badge b-blue">national parliament (lower house) by-election</span></td>
+        <td>direct</td>
+        <td>single vote</td>
+        <td>18 Jun</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇬🇧 United Kingdom</td>
+        <td>Arbroath and Broughty Ferry</td>
+        <td><span class="badge b-blue">national parliament (lower house) by-election</span></td>
+        <td>direct</td>
+        <td>single vote</td>
+        <td>18 Jun</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇨🇭 Switzerland</td>
+        <td>"No to Switzerland of 10 million! (Sustainability Initiative)" (Initiative)</td>
+        <td><span class="badge b-purple">national referendum</span></td>
+        <td>direct</td>
+        <td>single vote</td>
+        <td>14 Jun</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇨🇭 Switzerland</td>
+        <td>Civilian Service Act (Amendment)</td>
+        <td><span class="badge b-purple">national referendum</span></td>
+        <td>direct</td>
+        <td>single vote</td>
+        <td>14 Jun</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇨🇭 Switzerland</td>
+        <td>Basle-Country</td>
+        <td><span class="badge b-green">regional government by-election</span></td>
+        <td>direct</td>
+        <td>first round</td>
+        <td>14 Jun</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇽🇰 Kosovo</td>
+        <td></td>
+        <td><span class="badge b-orange">head of state/presidential</span></td>
+        <td>indirect</td>
+        <td>multi-round single session</td>
+        <td>01 Jul</td>
+        <td><span class="status-unconfirmed">Not confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇸🇰 Slovakia</td>
+        <td>Lifetime benefits for politicians</td>
+        <td><span class="badge b-purple">national referendum</span></td>
+        <td>direct</td>
+        <td>single vote</td>
+        <td>04 Jul</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇸🇰 Slovakia</td>
+        <td>Specialised investigation and prosecution of serious crime</td>
+        <td><span class="badge b-purple">national referendum</span></td>
+        <td>direct</td>
+        <td>single vote</td>
+        <td>04 Jul</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇮🇸 Iceland</td>
+        <td>EU membership negotiations</td>
+        <td><span class="badge b-purple">national referendum</span></td>
+        <td>direct</td>
+        <td>single vote</td>
+        <td>29 Aug</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇸🇲 San Marino</td>
+        <td></td>
+        <td><span class="badge b-orange">head of state/presidential</span></td>
+        <td>indirect</td>
+        <td>multi-round single session</td>
+        <td>01 Sep</td>
+        <td><span class="status-unconfirmed">Not confirmed</span></td>
+      </tr>
+      <tr>
+        <td>🇪🇪 Estonia</td>
+        <td></td>
+        <td><span class="badge b-orange">head of state/presidential</span></td>
+        <td>indirect</td>
+        <td>first round</td>
+        <td>02 Sep</td>
+        <td><span class="status-confirmed">Confirmed</span></td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="credit">Created with <a href="https://www.datawrapper.de">Datawrapper</a></p>
+</div>
